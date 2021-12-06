@@ -30,10 +30,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+//        http
+//                .csrf().disable(); // csrf설정은 기본적으로 활성화 되어있음 사용하지 않을 경우에만 선언해주면 된다.
+
         // 인가 정책
         http
                 .authorizeRequests()
                 .anyRequest().authenticated();
+//                .anyRequest().permitAll();
         // 인증 정책
         http
                 .formLogin() // formLogin방식
@@ -81,11 +85,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .deleteCookies("remember-me")
                     .and()
                 .rememberMe()
-                    .rememberMeParameter("remember") // 기본 파라미터명은 "remember-me"
-                    .tokenValiditySeconds(3600) // Default는 14일
-                    .alwaysRemember(false) // remember-me기능이 활성화 되지 않아도 항상 실행
+                    .rememberMeParameter("remember")
+                    .tokenValiditySeconds(3600)
+                    .alwaysRemember(false)
                     .userDetailsService(userDetailsService)
-
+                    .and()
+                .sessionManagement()
+                    .sessionFixation().changeSessionId() // 기본 설정 되어 있음. 요청 할 떄 마다 세션 ID를 새로 공급 받아 공격자로부터 세션을 공유하지 못하도록 방어한다.
+                    .maximumSessions(1)
+                    // 동시 세션 제어
+                    .maxSessionsPreventsLogin(false) // default : false -> 기존 사용중인 사용자는 세션을 만료시키고 새로 로그인한 사용자에게 세션이 주어준다.
+                    // 세션 고정 보호
         ;
     }
 }
