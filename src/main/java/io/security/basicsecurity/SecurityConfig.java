@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,9 +31,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        http
-//                .csrf().disable(); // csrf설정은 기본적으로 활성화 되어있음 사용하지 않을 경우에만 선언해주면 된다.
-
+        // 사이트간 요청 위조 - CSRF
+        http
+                .csrf();
+//                .disable(); // csrf설정은 기본적으로 활성화 되어있음 사용하지 않을 경우에만 선언해주면 된다.
         // 인가 정책
         http
                 .authorizeRequests()
@@ -97,5 +99,29 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .maxSessionsPreventsLogin(false) // default : false -> 기존 사용중인 사용자는 세션을 만료시키고 새로 로그인한 사용자에게 세션이 주어준다.
                     // 세션 고정 보호
         ;
+        // 동시 세션 제어
+        http.sessionManagement()
+                .maximumSessions(1) // 최대 허용 가능 세션 수, -1 : 무제한 로그인 세션 허용
+                .maxSessionsPreventsLogin(false) // 동시 로그인 차단, false : 기존 세션 만료(default)
+//                .invalidSessionUrl("/invalid") // 세션이 유효하지 않을 대 이동 할 페이지
+                .expiredUrl("/expired"); // 세션이 만료된 경우 이동 할 페이지
+        // 세션 고정 보호
+        http.sessionManagement()
+                .sessionFixation().changeSessionId(); // 기본 값 (서블릿 3.1 이상의 기본 값)
+
+                // 새로운 세션 할당, 기존 세션의 모든 어트리뷰트가 새로운 세션으로 이동한다. (서블릿 3.1 이하의 기본 값)
+//                .sessionFixation().migrateSession()
+
+                // 새로운 세션 생성, 기존 세션의 모든 어트리뷰트는 새로운 세션으로 옮겨지지 않는다.
+//                .sessionFixation().newSession() // 새로운 세션 생성
+
+                // 설정해제, 공격에 방치된다.
+//                .sessionFixation().none();
+        // 세션 정책
+        http.sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED); // 스프링 시큐리티가 필요 시 생성(기본 값)
+//                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS) //  스프링 시큐리티가 항상 세션 생성
+//                .sessionCreationPolicy(SessionCreationPolicy.NEVER) // 스프링 시큐리티가 생성하지 않지만 이미 존재하면 사용
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 스프링 시큐리티가 생성하지도 않고 존재해도 사용하지 않음
     }
 }
