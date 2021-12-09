@@ -38,8 +38,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 인가 정책
         http
                 .authorizeRequests()
-                .anyRequest().authenticated();
-//                .anyRequest().permitAll();
+//                .anyRequest().authenticated();
+                .anyRequest().permitAll();
         // 인증 정책
         http
                 .formLogin() // formLogin방식
@@ -99,7 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .maxSessionsPreventsLogin(false) // default : false -> 기존 사용중인 사용자는 세션을 만료시키고 새로 로그인한 사용자에게 세션이 주어준다.
                     // 세션 고정 보호
         ;
-        // 동시 세션 제어
+        // 동시 세션 제어 -> 관련 블로그 글 정리 : https://cornarong.tistory.com/82
         http.sessionManagement()
                 .maximumSessions(1) // 최대 허용 가능 세션 수, -1 : 무제한 로그인 세션 허용
                 .maxSessionsPreventsLogin(false) // 동시 로그인 차단, false : 기존 세션 만료(default)
@@ -108,13 +108,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 세션 고정 보호
         http.sessionManagement()
                 .sessionFixation().changeSessionId(); // 기본 값 (서블릿 3.1 이상의 기본 값)
-
                 // 새로운 세션 할당, 기존 세션의 모든 어트리뷰트가 새로운 세션으로 이동한다. (서블릿 3.1 이하의 기본 값)
 //                .sessionFixation().migrateSession()
-
                 // 새로운 세션 생성, 기존 세션의 모든 어트리뷰트는 새로운 세션으로 옮겨지지 않는다.
 //                .sessionFixation().newSession() // 새로운 세션 생성
-
                 // 설정해제, 공격에 방치된다.
 //                .sessionFixation().none();
         // 세션 정책
