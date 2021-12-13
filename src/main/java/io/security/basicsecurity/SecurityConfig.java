@@ -3,6 +3,7 @@ package io.security.basicsecurity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -10,10 +11,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,15 +44,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 인가 정책
         http
                 .authorizeRequests()
+                .antMatchers("/login").permitAll()
 //                .anyRequest().authenticated();
                 .anyRequest().permitAll();
         // 인증 정책
         http
                 .formLogin() // formLogin방식
-//                    .loginPage("/loginPage") // 로그인 페이지
+//                    .loginPage("/login") // 로그인 페이지
                     .permitAll()
                     .defaultSuccessUrl("/") // 로그인 성공시 url
-                    .failureUrl("/loginPage") // 로그인 실패시 url
+                    .failureUrl("/login") // 로그인 실패시 url
                     .usernameParameter("userId") // form의 id 파라미터명
                     .passwordParameter("passwd") // form의 password 파라미터명
                     .loginProcessingUrl("/login_proc") // form의 action 경로
@@ -55,8 +62,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         // 로그인 성공시 authentication 정보를 매개변수로 -
                         @Override
                         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                            RequestCache requestCache = new HttpSessionRequestCache();
+                            SavedRequest savedRequest = requestCache.getRequest(request, response); // savedRequest 안에 사용자가 가고자 했던 정보가 들어 있다.
+                            String redirectUrl = savedRequest.getRedirectUrl();
+
+
                             System.out.println("authentication : " + authentication.getName());
-                            response.sendRedirect("/");
+                            // 인증에 성공하면 세션에 저장되어 있던 이전 정보(가고자 했던 경로)를 꺼내와서 이동 시킨다.
+                            response.sendRedirect(redirectUrl);
                         }
                     })
                     .failureHandler(new AuthenticationFailureHandler() { // 실패시 fail 핸들러를 호출한다. 추가로 사용해보자
@@ -120,5 +133,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS) //  스프링 시큐리티가 항상 세션 생성
 //                .sessionCreationPolicy(SessionCreationPolicy.NEVER) // 스프링 시큐리티가 생성하지 않지만 이미 존재하면 사용
 //                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 스프링 시큐리티가 생성하지도 않고 존재해도 사용하지 않음
+        // 예외 처리
+        http
+                .exceptionHandling()
+                // 인증 예외
+                .authenticationEntryPoint(new AuthenticationEntryPoint() {
+                    @Override
+                    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+                        response.sendRedirect("/login"); // 우리가 직접 만든 로그인페이지로 이동
+                    }
+                })
+                // 인가 예외
+                .accessDeniedHandler(new AccessDeniedHandler() {
+                    @Override
+                    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                        response.sendRedirect("/denied");
+                    }
+                });
     }
 }
