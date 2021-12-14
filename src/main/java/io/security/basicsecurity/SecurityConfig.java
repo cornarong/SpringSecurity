@@ -2,9 +2,11 @@ package io.security.basicsecurity;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -34,6 +36,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private final UserDetailsService userDetailsService;
+
+    //  정적 자원 관리 (WebIgnore 설정)
+    // StaticResourceLocation 클래스에서 기본으로 css,js,images 등과 같은 정적 파일들의 경로에 대해서는 "보안필터를 거치지 않고" 통과되도록 해준다.
+    // 정적 파일을 경로.permitAll()으로 하면 안되나요? -> 가능하다. 하지만 permitAll()을 "보안필터의 검사를 받는다"는 차이가 있다.
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
