@@ -13,15 +13,18 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'mysql:mysql-connector-java:8.0.26'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security' // 기본 계정 ID:user, PASS:콘솔확인
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.6'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.6'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	compileOnly "org.modelmapper:modelmapper:0.7.8"
 }
 
 test {

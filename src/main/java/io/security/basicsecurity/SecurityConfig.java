@@ -3,6 +3,7 @@ package io.security.basicsecurity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +14,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -34,8 +37,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private final UserDetailsService userDetailsService;
+//    @Autowired
+//    private final UserDetailsService userDetailsService;
 
     //  정적 자원 관리 (WebIgnore 설정)
     // StaticResourceLocation 클래스에서 기본으로 css,js,images 등과 같은 정적 파일들의 경로에 대해서는 "보안필터를 거치지 않고" 통과되도록 해준다.
@@ -109,12 +112,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     })
                     .deleteCookies("remember-me")
                     .and()
-                .rememberMe()
-                    .rememberMeParameter("remember")
-                    .tokenValiditySeconds(3600)
-                    .alwaysRemember(false)
-                    .userDetailsService(userDetailsService)
-                    .and()
+//                .rememberMe()
+//                    .rememberMeParameter("remember")
+//                    .tokenValiditySeconds(3600)
+//                    .alwaysRemember(false)
+//                    .userDetailsService(userDetailsService)
+//                    .and()
                 .sessionManagement()
                     .sessionFixation().changeSessionId() // 기본 설정 되어 있음. 요청 할 떄 마다 세션 ID를 새로 공급 받아 공격자로부터 세션을 공유하지 못하도록 방어한다.
                     .maximumSessions(1)
@@ -160,5 +163,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         response.sendRedirect("/denied");
                     }
                 });
+    }
+
+    // 패스워드 인코더(passwordEncoder) 빈 등록
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
