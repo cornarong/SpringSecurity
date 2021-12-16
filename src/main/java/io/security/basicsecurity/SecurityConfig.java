@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,6 +41,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    @Autowired
 //    private final UserDetailsService userDetailsService;
 
+    @Autowired
+    private final UserDetailsService userDetailsService;
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService);
+    }
+
     //  정적 자원 관리 (WebIgnore 설정)
     // StaticResourceLocation 클래스에서 기본으로 css,js,images 등과 같은 정적 파일들의 경로에 대해서는 "보안필터를 거치지 않고" 통과되도록 해준다.
     // 정적 파일을 경로.permitAll()으로 하면 안되나요? -> 가능하다. 하지만 permitAll()을 "보안필터의 검사를 받는다"는 차이가 있다.
@@ -57,9 +66,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 인가 정책
         http
                 .authorizeRequests()
-                .antMatchers("/login").permitAll()
-//                .anyRequest().authenticated();
-                .anyRequest().permitAll();
+                .antMatchers("/", "/login", "user/login/**").permitAll()
+                .antMatchers("/mypage").hasRole("USER")
+                .antMatchers("/messages").hasRole("MANAGER")
+                .antMatchers("/config").hasRole("ADMIN")
+                .anyRequest().authenticated();
+//                .anyRequest().permitAll();
         // 인증 정책
         http
                 .formLogin() // formLogin방식
