@@ -40,9 +40,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private final UserDetailsService userDetailsService;
-
+//    @Autowired
+//    private final UserDetailsService userDetailsService;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -74,7 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 인가 정책
         http
                 .authorizeRequests()
-                .antMatchers("/", "/login", "user/login/**").permitAll()
+                .antMatchers("/", "/users", "user/login/**").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")
@@ -86,9 +85,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .loginPage("/login") // 로그인 페이지
                     .defaultSuccessUrl("/") // 로그인 성공시 url
                     .failureUrl("/login") // 로그인 실패시 url
-                    .usernameParameter("userId") // form의 id 파라미터명
-                    .passwordParameter("passwd") // form의 password 파라미터명
+                    .usernameParameter("username") // form의 id 파라미터명
+                    .passwordParameter("password") // form의 password 파라미터명
                     .loginProcessingUrl("/login_proc") // form의 action 경로
+                    .permitAll()
                     .successHandler(new AuthenticationSuccessHandler() { // 성공시 success 핸들러를 호출한다. 추가로 사용해보자
                         // 로그인 성공시 authentication 정보를 매개변수로 -
                         @Override

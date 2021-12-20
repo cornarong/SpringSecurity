@@ -22,13 +22,15 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
+        System.out.println("authentication.getName() = "+authentication.getName());
+
         String username = authentication.getName();
         String password = (String) authentication.getCredentials();
 
         AccountContext accountContext = (AccountContext) userDetailsService.loadUserByUsername(username);
 
         // 패스워드가 일치하지 않을 경우 BadCredentialsException.
-        if(passwordEncoder.matches(password, accountContext.getAccount().getPassword())) {
+        if(!passwordEncoder.matches(password, accountContext.getAccount().getPassword())) {
             throw new BadCredentialsException("BadCredentialsException");
         }
 
@@ -40,7 +42,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         return authenticationToken;
     }
 
-    // 현재 파라미터로 전달되는 클래스의 타입과
     @Override
     public boolean supports(Class<?> authentication) {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
