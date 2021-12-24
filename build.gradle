@@ -17,6 +17,8 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.26'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security' // 기본 계정 ID:user, PASS:콘솔확인
+	implementation 'org.springframework.security:spring-security-test'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5' // 타임리프에서 스프링시큐리티의 문법이나 형식을 지원하는 확장팩 라이브러리
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.6'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'

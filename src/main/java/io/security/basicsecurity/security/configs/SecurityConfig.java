@@ -61,7 +61,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // 정적 파일을 경로.permitAll()으로 하면 안되나요? -> 가능하다. 하지만 permitAll()을 "보안필터의 검사를 받는다"는 차이가 있다.
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+        web.ignoring()
+                .antMatchers("/favicon.ico", "/resources/**", "/error")
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     @Override
@@ -89,27 +91,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .passwordParameter("password") // form의 password 파라미터명
                     .loginProcessingUrl("/login_proc") // form의 action 경로
                     .permitAll()
-                    .successHandler(new AuthenticationSuccessHandler() { // 성공시 success 핸들러를 호출한다. 추가로 사용해보자
-                        // 로그인 성공시 authentication 정보를 매개변수로 -
-                        @Override
-                        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                            RequestCache requestCache = new HttpSessionRequestCache();
-                            SavedRequest savedRequest = requestCache.getRequest(request, response); // savedRequest 안에 사용자가 가고자 했던 정보가 들어 있다.
-                            String redirectUrl = savedRequest.getRedirectUrl();
-
-                            System.out.println("authentication : " + authentication.getName());
-                            // 인증에 성공하면 세션에 저장되어 있던 이전 정보(가고자 했던 경로)를 꺼내와서 이동 시킨다.
-                            response.sendRedirect(redirectUrl);
-                        }
-                    })
-                    .failureHandler(new AuthenticationFailureHandler() { // 실패시 fail 핸들러를 호출한다. 추가로 사용해보자
-                        // 로그인 실패시 exception 정보를 매개변수로 -
-                        @Override
-                        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-                            System.out.println("exception : " + exception.getMessage());
-                            response.sendRedirect("/loginPage");
-                        }
-                    })
+//                    .successHandler(new AuthenticationSuccessHandler() { // 성공시 success 핸들러를 호출한다. 추가로 사용해보자
+//                        // 로그인 성공시 authentication 정보를 매개변수로 -
+//                        @Override
+//                        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//                            RequestCache requestCache = new HttpSessionRequestCache();
+//                            SavedRequest savedRequest = requestCache.getRequest(request, response); // savedRequest 안에 사용자가 가고자 했던 정보가 들어 있다.
+//                            String redirectUrl = savedRequest.getRedirectUrl();
+//
+//                            System.out.println("authentication : " + authentication.getName());
+//                            // 인증에 성공하면 세션에 저장되어 있던 이전 정보(가고자 했던 경로)를 꺼내와서 이동 시킨다.
+//                            response.sendRedirect(redirectUrl);
+//                        }
+//                    })
+//                    .failureHandler(new AuthenticationFailureHandler() { // 실패시 fail 핸들러를 호출한다. 추가로 사용해보자
+//                        // 로그인 실패시 exception 정보를 매개변수로 -
+//                        @Override
+//                        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+//                            System.out.println("exception : " + exception.getMessage());
+//                            response.sendRedirect("/loginPage");
+//                        }
+//                    })
         .and()
                 .logout()
                     .logoutUrl("/logout") // 시큐리티는 원칙적으로 logout 처리를 post 방식으로 처리해야 한다.
