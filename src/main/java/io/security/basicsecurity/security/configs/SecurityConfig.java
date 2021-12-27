@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,6 +43,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 //    @Autowired
 //    private final UserDetailsService userDetailsService;
+
+    @Autowired
+    private final AuthenticationDetailsSource authenticationDetailsSource;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -82,7 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
 //                .anyRequest().permitAll()
         // 인증 정책
-        .and()
+                .and()
                 .formLogin() // formLogin방식
                     .loginPage("/login") // 로그인 페이지
                     .defaultSuccessUrl("/") // 로그인 성공시 url
@@ -90,7 +94,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .usernameParameter("username") // form의 id 파라미터명
                     .passwordParameter("password") // form의 password 파라미터명
                     .loginProcessingUrl("/login_proc") // form의 action 경로
-                    .permitAll()
+                    .authenticationDetailsSource(authenticationDetailsSource) // 인증 부가 기능
+                    .permitAll();
 //                    .successHandler(new AuthenticationSuccessHandler() { // 성공시 success 핸들러를 호출한다. 추가로 사용해보자
 //                        // 로그인 성공시 authentication 정보를 매개변수로 -
 //                        @Override
@@ -112,7 +117,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                            response.sendRedirect("/loginPage");
 //                        }
 //                    })
-        .and()
+        http
                 .logout()
                     .logoutUrl("/logout") // 시큐리티는 원칙적으로 logout 처리를 post 방식으로 처리해야 한다.
                     .logoutSuccessUrl("/login")
@@ -130,7 +135,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         }
                     })
                     .deleteCookies("remember-me")
-        .and()
+                .and()
 //                .rememberMe()
 //                    .rememberMeParameter("remember")
 //                    .tokenValiditySeconds(3600)
@@ -141,9 +146,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .sessionFixation().changeSessionId() // 기본 설정 되어 있음. 요청 할 떄 마다 세션 ID를 새로 공급 받아 공격자로부터 세션을 공유하지 못하도록 방어한다.
                     .maximumSessions(1)
                     // 동시 세션 제어
-                    .maxSessionsPreventsLogin(false) // default : false -> 기존 사용중인 사용자는 세션을 만료시키고 새로 로그인한 사용자에게 세션이 주어준다.
+                    .maxSessionsPreventsLogin(false); // default : false -> 기존 사용중인 사용자는 세션을 만료시키고 새로 로그인한 사용자에게 세션이 주어준다.
                     // 세션 고정 보호
-        ;
+
         // 동시 세션 제어 -> 관련 블로그 글 정리 : https://cornarong.tistory.com/82
         http.sessionManagement()
                 .maximumSessions(1) // 최대 허용 가능 세션 수, -1 : 무제한 로그인 세션 허용
