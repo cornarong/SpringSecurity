@@ -5,38 +5,38 @@
 <!--<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>-->
 
 <head th:replace="layout/header::userHead"></head>
-<script>
-  function formLogin(e) {
+<!--<script>-->
+<!--  function formLogin(e) {-->
 
-    var username = $("input[name='username']").val().trim();
-    var password = $("input[name='password']").val().trim();
-    var data = {"username" : username, "password" : password};
+<!--    var username = $("input[name='username']").val().trim();-->
+<!--    var password = $("input[name='password']").val().trim();-->
+<!--    var data = {"username" : username, "password" : password};-->
 
-    // var csrfHeader = $('meta[name="_csrf_header"]').attr('content')
-    // var csrfToken = $('meta[name="_csrf"]').attr('content')
+<!--    // var csrfHeader = $('meta[name="_csrf_header"]').attr('content')-->
+<!--    // var csrfToken = $('meta[name="_csrf"]').attr('content')-->
 
-    $.ajax({
-      type: "post",
-      url: "/api/login",
-      data: JSON.stringify(data),
-      dataType: "json",
-      beforeSend : function(xhr){
-        // xhr.setRequestHeader(csrfHeader, csrfToken);
-        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-        xhr.setRequestHeader("Content-type","application/json");
-      },
-      success: function (data) {
-        console.log(data);
-        window.location = '/';
+<!--    $.ajax({-->
+<!--      type: "post",-->
+<!--      url: "/api/login",-->
+<!--      data: JSON.stringify(data),-->
+<!--      dataType: "json",-->
+<!--      beforeSend : function(xhr){-->
+<!--        // xhr.setRequestHeader(csrfHeader, csrfToken);-->
+<!--        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");-->
+<!--        xhr.setRequestHeader("Content-type","application/json");-->
+<!--      },-->
+<!--      success: function (data) {-->
+<!--        console.log(data);-->
+<!--        window.location = '/';-->
 
-      },
-      error : function(xhr, status, error) {
-        console.log(error);
-        window.location = '/login?error=true&exception=' + xhr.responseText;
-      }
-    });
-  }
-</script>
+<!--      },-->
+<!--      error : function(xhr, status, error) {-->
+<!--        console.log(error);-->
+<!--        window.location = '/login?error=true&exception=' + xhr.responseText;-->
+<!--      }-->
+<!--    });-->
+<!--  }-->
+<!--</script>-->
 <body>
 <div th:replace="layout/top::header"></div>
 <div class="container text-center">
@@ -46,7 +46,7 @@
         <p>아이디와 비밀번호를 입력해주세요</p>
       </div>
       <div th:if="${param.error}" class="form-group">
-<!--        <span th:text="${exception}" class="alert alert-danger">잘못된 아이디나 암호입니다</span>-->
+        <span th:text="${exception}" class="alert alert-danger">잘못된 아이디나 암호입니다</span>
       </div>
       <form th:action="@{/login_proc}" class="form-signin" method="post">
         <input type="hidden" th:value="secret" name="secret_key" />

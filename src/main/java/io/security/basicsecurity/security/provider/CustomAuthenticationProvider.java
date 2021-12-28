@@ -41,7 +41,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String secretKey = formWebAuthenticationDetails.getSecretKey();
 
         if(secretKey == null || !"secret".equals(secretKey)){
-            throw new InsufficientAuthenticationException("InsufficientAuthenticationException");
+            throw new InsufficientAuthenticationException("Invalid Secret");
         }
 
         // 최종적으로 검증이 성공한 경우

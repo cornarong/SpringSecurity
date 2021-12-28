@@ -50,6 +50,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
+    @Autowired
+    private final AuthenticationFailureHandler customAuthenticationFailureHandler;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 //        auth.userDetailsService(userDetailsService);
@@ -82,7 +85,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 인가 정책
         http
                 .authorizeRequests()
-                .antMatchers("/", "/users", "user/login/**").permitAll()
+                .antMatchers("/", "/users", "user/login/**", "/login*").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")
@@ -98,7 +101,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                    .failureUrl("/login") // 로그인 실패시 url
                     .authenticationDetailsSource(authenticationDetailsSource) // 인증 부가 기능
                     .successHandler(customAuthenticationSuccessHandler) // 1. 성공시 custom success 핸들러를 호출한다.
-                    .permitAll()
 //                    .successHandler(new AuthenticationSuccessHandler() { // 2. 성공시 success 핸들러를 호출한다. 추가로 사용해보자
 //                        // 로그인 성공시 authentication 정보를 매개변수로 -
 //                        @Override
@@ -112,14 +114,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                            response.sendRedirect(redirectUrl);
 //                        }
 //                    })
-                    .failureHandler(new AuthenticationFailureHandler() { // 실패시 fail 핸들러를 호출한다. 추가로 사용해보자
-                        // 로그인 실패시 exception 정보를 매개변수로 -
-                        @Override
-                        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-                            System.out.println("exception : " + exception.getMessage());
-                            response.sendRedirect("/loginPage");
-                        }
-                    });
+                    .failureHandler(customAuthenticationFailureHandler) // 1. 실패시 custom failure 핸들러를 호출한다.
+//                    .failureHandler(new AuthenticationFailureHandler() { // 2. 실패시 fail 핸들러를 호출한다. 추가로 사용해보자
+//                        // 로그인 실패시 exception 정보를 매개변수로 -
+//                        @Override
+//                        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+//                            System.out.println("exception : " + exception.getMessage());
+//                            response.sendRedirect("/loginPage");
+//                        }
+//                    });
+                    .permitAll();
         http
                 .logout()
                     .logoutUrl("/logout") // 시큐리티는 원칙적으로 logout 처리를 post 방식으로 처리해야 한다.
