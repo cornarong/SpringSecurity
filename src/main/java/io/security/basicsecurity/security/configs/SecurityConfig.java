@@ -1,5 +1,7 @@
 package io.security.basicsecurity.security.configs;
 
+import io.security.basicsecurity.security.common.FormAuthenticationDetailsSource;
+import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.basicsecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +47,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    private final UserDetailsService userDetailsService;
 
     @Autowired
-    private final AuthenticationDetailsSource authenticationDetailsSource;
+    public final FormAuthenticationDetailsSource authenticationDetailsSource;
 
     @Autowired
-    private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    public final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Autowired
-    private final AuthenticationFailureHandler customAuthenticationFailureHandler;
+    public final AuthenticationFailureHandler customAuthenticationFailureHandler;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -91,7 +93,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated()
         // 인증 정책
-                .and()
+        .and()
                 .formLogin() // formLogin방식
                     .loginPage("/login") // 로그인 페이지
                     .usernameParameter("username") // form의 id 파라미터명
@@ -123,7 +125,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                            response.sendRedirect("/loginPage");
 //                        }
 //                    });
-                    .permitAll();
+                    .permitAll()
+        .and()
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler());
         http
                 .logout()
                     .logoutUrl("/logout") // 시큐리티는 원칙적으로 logout 처리를 post 방식으로 처리해야 한다.
@@ -177,7 +182,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS) //  스프링 시큐리티가 항상 세션 생성
 //                .sessionCreationPolicy(SessionCreationPolicy.NEVER) // 스프링 시큐리티가 생성하지 않지만 이미 존재하면 사용
 //                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 스프링 시큐리티가 생성하지도 않고 존재해도 사용하지 않음
-        // 예외 처리
+
+/*        // 예외 처리
         http
                 .exceptionHandling()
                 // 인증 예외
@@ -193,7 +199,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
                         response.sendRedirect("/denied");
                     }
-                });
+                });*/
+
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        accessDeniedHandler.setErrorPage("/denied");
+
+        return accessDeniedHandler;
     }
 
     // 패스워드 인코더(passwordEncoder) 빈 등록
