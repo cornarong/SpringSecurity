@@ -203,6 +203,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
+    // 인증 거부 처리
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
