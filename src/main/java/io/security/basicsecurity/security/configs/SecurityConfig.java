@@ -1,6 +1,7 @@
 package io.security.basicsecurity.security.configs;
 
 import io.security.basicsecurity.security.common.FormAuthenticationDetailsSource;
+import io.security.basicsecurity.security.filter.AjaxLoginProcessingFilter;
 import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.basicsecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,19 +17,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -128,7 +122,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .permitAll()
         .and()
                 .exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler());
+                .accessDeniedHandler(accessDeniedHandler())
+        .and()
+                .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+
+
         http
                 .logout()
                     .logoutUrl("/logout") // 시큐리티는 원칙적으로 logout 처리를 post 방식으로 처리해야 한다.
@@ -200,7 +198,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         response.sendRedirect("/denied");
                     }
                 });*/
-
     }
 
     // 인증 거부 처리
@@ -208,7 +205,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AccessDeniedHandler accessDeniedHandler() {
         CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
         accessDeniedHandler.setErrorPage("/denied");
-
         return accessDeniedHandler;
     }
 
@@ -216,5 +212,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter(){
+        return new AjaxLoginProcessingFilter();
     }
 }
