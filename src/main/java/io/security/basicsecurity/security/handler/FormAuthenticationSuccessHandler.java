@@ -15,7 +15,7 @@ import java.io.IOException;
 
 // 인증 성공 핸들러 : CustomAuthenticationSuccessHandler
 @Component
-public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class FormAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private RequestCache requestCache = new HttpSessionRequestCache();
 

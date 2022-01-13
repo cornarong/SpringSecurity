@@ -1,6 +1,8 @@
 package io.security.basicsecurity.security.configs;
 
 import io.security.basicsecurity.security.filter.AjaxLoginProcessingFilter;
+import io.security.basicsecurity.security.handler.AjaxAuthenticationFailureHandler;
+import io.security.basicsecurity.security.handler.AjaxAuthenticationSuccessHandler;
 import io.security.basicsecurity.security.provider.AjaxAuthenticationProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +12,8 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -17,14 +21,29 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Slf4j
 public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    // 사용자 인증 시도 -> AjaxLoginProcessingFilter에서 인증처리에 관련된 내용을 인증객체(ID,PASSWORD등)로 생성
+    // -> AuthenticationManager로 전달 -> AuthenticationManager은 AuthenticationProvider에게 인증처리를 위임
+    // -> 인증을 거친 결과값(성공or실패)을 AjaxLoginProcessingFilter로 다시 전달 (인증필터가 최종결과값을 받는다)
+    // -> AuthenticationSuccessHandler or AuthenticationFailureHandler을 호출한다.
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(ajaxAuthenticationProvider());
     }
 
-    @Bean
+    @Bean // 인증 처리
     public AuthenticationProvider ajaxAuthenticationProvider(){
         return new AjaxAuthenticationProvider();
+    }
+
+    @Bean // 성공 핸들러
+    public AuthenticationSuccessHandler ajaxAuthenticationSuccessHandler(){
+        return new AjaxAuthenticationSuccessHandler();
+    }
+
+    @Bean // 실패 핸들러
+    public AuthenticationFailureHandler ajaxAuthenticationFailureHandler(){
+        return new AjaxAuthenticationFailureHandler();
     }
 
     @Override
@@ -45,6 +64,10 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
     public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
         ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManagerBean());
+        // * 성공/실패 핸들러의 Form방식과 차이점 : Form방식은 성공 or 실패 시 리다이렉션으로 화면이동이 가능하지만
+        // * Ajax방식은 단순 결과값을 JSON형식으로 BODY에 담아서 전달만 해주게 된다.
+        ajaxLoginProcessingFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler()); // 인증 성공 시
+        ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler()); // 인증 실패 시
         return ajaxLoginProcessingFilter;
     }
 }
