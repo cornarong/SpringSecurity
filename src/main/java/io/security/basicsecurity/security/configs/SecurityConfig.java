@@ -42,13 +42,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    private final UserDetailsService userDetailsService;
 
     @Autowired
-    public final FormAuthenticationDetailsSource authenticationDetailsSource;
+    private FormAuthenticationDetailsSource authenticationDetailsSource;
 
     @Autowired
-    public final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private AuthenticationSuccessHandler formAuthenticationSuccessHandler;
 
     @Autowired
-    public final AuthenticationFailureHandler customAuthenticationFailureHandler;
+    private AuthenticationFailureHandler formAuthenticationFailureHandler;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -93,7 +93,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .defaultSuccessUrl("/") // 로그인 성공시 url
 //                    .failureUrl("/login") // 로그인 실패시 url
                     .authenticationDetailsSource(authenticationDetailsSource) // 인증 부가 기능
-                    .successHandler(customAuthenticationSuccessHandler) // 1. 성공시 custom success 핸들러를 호출한다.
+                    .successHandler(formAuthenticationSuccessHandler) // 1. 성공시 custom success 핸들러를 호출한다.
 //                    .successHandler(new AuthenticationSuccessHandler() { // 2. 성공시 success 핸들러를 호출한다. 추가로 사용해보자
 //                        // 로그인 성공시 authentication 정보를 매개변수로 -
 //                        @Override
@@ -107,7 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                            response.sendRedirect(redirectUrl);
 //                        }
 //                    })
-                    .failureHandler(customAuthenticationFailureHandler) // 1. 실패시 custom failure 핸들러를 호출한다.
+                    .failureHandler(formAuthenticationFailureHandler) // 1. 실패시 custom failure 핸들러를 호출한다.
 //                    .failureHandler(new AuthenticationFailureHandler() { // 2. 실패시 fail 핸들러를 호출한다. 추가로 사용해보자
 //                        // 로그인 실패시 exception 정보를 매개변수로 -
 //                        @Override

@@ -1,6 +1,8 @@
 package io.security.basicsecurity.security.configs;
 
+import io.security.basicsecurity.security.common.AjaxLoginUrlAuthenticationEntryPoint;
 import io.security.basicsecurity.security.filter.AjaxLoginProcessingFilter;
+import io.security.basicsecurity.security.handler.AjaxAccessDeniedHandler;
 import io.security.basicsecurity.security.handler.AjaxAuthenticationFailureHandler;
 import io.security.basicsecurity.security.handler.AjaxAuthenticationSuccessHandler;
 import io.security.basicsecurity.security.provider.AjaxAuthenticationProvider;
@@ -12,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -36,14 +39,19 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
         return new AjaxAuthenticationProvider();
     }
 
-    @Bean // 성공 핸들러
+    @Bean // 인증 성공 핸들러
     public AuthenticationSuccessHandler ajaxAuthenticationSuccessHandler(){
         return new AjaxAuthenticationSuccessHandler();
     }
 
-    @Bean // 실패 핸들러
+    @Bean // 인증 실패 핸들러
     public AuthenticationFailureHandler ajaxAuthenticationFailureHandler(){
         return new AjaxAuthenticationFailureHandler();
+    }
+
+    @Bean // 인증 거부 핸들러
+    public AccessDeniedHandler ajaxAccessDeniedHandler() {
+        return new AjaxAccessDeniedHandler();
     }
 
     @Override
@@ -51,11 +59,18 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .antMatcher("/api/**")
                 .authorizeRequests()
+                .antMatchers("/api/messages").hasRole("MANAGER") // 매니저 권한 사용자만 messages 에 접근 가능하오(TEST)
                 .anyRequest().authenticated()
         .and()
-                .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
-                // 사이트간 요청 위조 - CSRF (csrf설정은 기본적으로 활성화 되어있음 사용하지 않을 경우에만 선언해주면 된다.)
-                .csrf().disable();
+                .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .exceptionHandling()
+                .authenticationEntryPoint(new AjaxLoginUrlAuthenticationEntryPoint())
+                .accessDeniedHandler(ajaxAccessDeniedHandler());
+
+        // 사이트간 요청 위조 - CSRF (csrf설정은 기본적으로 활성화 되어있음 사용하지 않을 경우에만 선언해주면 된다.)
+        http.csrf().disable();
 
     }
 
