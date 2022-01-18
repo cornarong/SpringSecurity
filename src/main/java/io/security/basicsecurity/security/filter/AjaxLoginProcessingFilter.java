@@ -48,7 +48,7 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
 
     // 요청의 헤더의 값을 확인하여 요청 방식이 ajax인지 확인한다.
     private boolean isAjax(HttpServletRequest request) {
-        if("XMLHttpRequest".equals(request.getHeader("X-Requested-with"))){
+        if("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
             return true;
         }
         return false;

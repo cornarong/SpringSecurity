@@ -60,8 +60,9 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatcher("/api/**")
                 .authorizeRequests()
                 .antMatchers("/api/messages").hasRole("MANAGER") // 매니저 권한 사용자만 messages 에 접근 가능하오(TEST)
+                .antMatchers("/api/login").permitAll()
                 .anyRequest().authenticated()
-        .and()
+                .and()
                 .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http
@@ -70,7 +71,7 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(ajaxAccessDeniedHandler());
 
         // 사이트간 요청 위조 - CSRF (csrf설정은 기본적으로 활성화 되어있음 사용하지 않을 경우에만 선언해주면 된다.)
-        http.csrf().disable();
+//        http.csrf().disable();
 
     }
 
