@@ -63,9 +63,7 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        http
+//                .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
                 .exceptionHandling()
                 .authenticationEntryPoint(new AjaxLoginUrlAuthenticationEntryPoint())
                 .accessDeniedHandler(ajaxAccessDeniedHandler());
@@ -73,17 +71,29 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
         // 사이트간 요청 위조 - CSRF (csrf설정은 기본적으로 활성화 되어있음 사용하지 않을 경우에만 선언해주면 된다.)
 //        http.csrf().disable();
 
+        customConfigurerAjax(http);
+
+    }
+
+    private void customConfigurerAjax(HttpSecurity http) throws Exception {
+        http
+                .apply(new AjaxLoginConfigurer<>())
+                .successHandlerAjax(ajaxAuthenticationSuccessHandler())
+                .failureHandlerAjax(ajaxAuthenticationFailureHandler())
+                .loginPage("/api/login")
+                .loginProcessingUrl("/api/login")
+                .setAuthenticationManager(authenticationManagerBean());
     }
 
     // 인증 필터 - AjaxAuthenticationFilter
-    @Bean
-    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
-        AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
-        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManagerBean());
-        // * 성공/실패 핸들러의 Form방식과 차이점 : Form방식은 성공 or 실패 시 리다이렉션으로 화면이동이 가능하지만
-        // * Ajax방식은 단순 결과값을 JSON형식으로 BODY에 담아서 전달만 해주게 된다.
-        ajaxLoginProcessingFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler()); // 인증 성공 시
-        ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler()); // 인증 실패 시
-        return ajaxLoginProcessingFilter;
-    }
+//    @Bean
+//    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
+//        AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter();
+//        filter.setAuthenticationManager(authenticationManagerBean());
+//        // * 성공/실패 핸들러의 Form방식과 차이점 : Form방식은 성공 or 실패 시 리다이렉션으로 화면이동이 가능하지만
+//        // * Ajax방식은 단순 결과값을 JSON형식으로 BODY에 담아서 전달만 해주게 된다.
+//        filter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler()); // 인증 성공 시
+//        filter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler()); // 인증 실패 시
+//        return filter;
+//    }
 }

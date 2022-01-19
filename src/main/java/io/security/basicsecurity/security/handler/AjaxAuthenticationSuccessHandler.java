@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -24,7 +24,7 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        objectMapper.writeValue(response.getWriter(), account);
+        mapper.writeValue(response.getWriter(), account);
 
     }
 }

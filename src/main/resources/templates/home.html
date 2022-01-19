@@ -7,7 +7,6 @@
 <head th:replace="layout/header::userHead"></head>
 <script>
   function messages(){
-
     var csrfToken = $('meta[name="_csrf"]').attr('content');
     var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
@@ -19,6 +18,10 @@
         xhr.setRequestHeader(csrfHeader, csrfToken);
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhr.setRequestHeader("Content-type", "application/json");
+      },
+      success: function (data) {
+        console.log(data);
+        window.location = '/messages';
       },
       error : function (xhr, status, error){
         console.log(error);
