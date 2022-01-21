@@ -40,20 +40,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 //    @Autowired
 //    private final UserDetailsService userDetailsService;
-
     @Autowired
     private FormAuthenticationDetailsSource authenticationDetailsSource;
-
     @Autowired
     private AuthenticationSuccessHandler formAuthenticationSuccessHandler;
-
     @Autowired
     private AuthenticationFailureHandler formAuthenticationFailureHandler;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 //        auth.userDetailsService(userDetailsService);
-
         // 직접 만든 FormAuthenticationProvider를 사용해서 인증 처리를 하게 된다.
         auth.authenticationProvider(authenticationProvider());
     }
