@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-// 인증 성공 핸들러 : CustomAuthenticationSuccessHandler
+// 인증 성공 핸들러 : FormAuthenticationSuccessHandler
 @Component
 public class FormAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
