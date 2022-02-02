@@ -47,3 +47,14 @@
     . 최종 응답 시 공통
         . SecurityContextHolder.clearContext() (인증 사용자는 이미 세션에 SecurityContext 가 저장되어 있기 떄문에 상관 없음)
 
+## 인증 관리자
+1) AuthenticationManager
+. 필터로 부터 ID/PW의 정보를 담은 Authentication 객체를 전달받는다.
+. 매니저가 실제 인증처리를 하지않고 프로바이더를 찾아서 인증처리를 맡기는(위임하는) 역할을 하는 것.
+. AuthenticationProvider 클래스를 관리하는 클래스이다.
+. AuthenticationProvider 목록 중에서 인증 처리 요건에 맞는 ProviderManager 를 찾아 인증처리를 위임한다.
+    . ex) 사용자가 Form 방식으로 인증할 경우 DaoAuthenticationProvider 을 찾아서 위임하고,
+          사용자가 RememberMe 방식으로 인증할 경우 RememberMeAuthenticationProvider 을 찾아서 위임하고,
+          사용자가 Oauth 방식으로 인증할 경우 부모 속성의 ProviderManager 에서 OauthAuthenticationProvider 을 찾아서 위임한다.
+
+
